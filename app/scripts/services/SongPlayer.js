@@ -1,17 +1,17 @@
 (function() {
-     function SongPlayer() {
+     function SongPlayer(Fixtures) {
          
           /**
-          * @desc  Song palying object
+          * @desc  Song playing object
           * @type {Object}
           */   
           var SongPlayer = {};
          
           /**
-          * @desc Current song that is being acted upon
+          * @desc Gets the current Album info
           * @type {Object}
           */   
-          var currentSong = null;
+          var currentAlbum = Fixtures.getAlbum();
          
           /**
           * @desc Buzz object audio file
@@ -27,7 +27,7 @@
           var setSong = function(song) {
              if (currentBuzzObject) {
                  currentBuzzObject.stop();
-                 currentSong.playing = null;
+                 SongPlayer.currentSong.playing = null;
              }
  
              currentBuzzObject = new buzz.sound(song.audioUrl, {
@@ -35,7 +35,7 @@
                  preload: true
              });
  
-             currentSong = song;
+             SongPlayer.currentSong = song;
           };
           
           /**
@@ -47,6 +47,21 @@
                 currentBuzzObject.play();
                 song.playing = true;   
           };
+         
+         /**
+         * @function getSongIndex
+         * @desc Returns the current album songs by index
+         * @param {Object} song
+         */
+         var getSongIndex = function(song) {
+             return currentAlbum.songs.indexOf(song);
+         };
+         
+         /**
+         * @desc Current song that is being acted upon
+         * @type {Object}
+         */   
+          SongPlayer.currentSong = null;
           
           /**
           * @function SongPlayer.play
@@ -54,10 +69,11 @@
           * @param {Object} song
           */
           SongPlayer.play = function(song) {
-              if (currentSong !== song) {
+              song = song || SongPlayer.currentSong;
+              if (SongPlayer.currentSong !== song) {
                   setSong(song);
                   playSong(song);
-              } else if (currentSong === song) {
+              } else if (SongPlayer.currentSong === song) {
                   if (currentBuzzObject.isPaused()) {
                       playSong(song);
                   }
@@ -70,9 +86,28 @@
           * @param {Object} song
           */         
           SongPlayer.pause = function(song) {
+              song = song || SongPlayer.currentSong;
               currentBuzzObject.pause();
               song.playing = false;
           };
+         
+         /**
+         * @function SongPlayer.previous
+         * @desc Will move to the previous song in the song index
+         */         
+         SongPlayer.previous = function() {
+             var currentSongIndex = getSongIndex(SongPlayer.currentSong);
+             currentSongIndex--;
+             
+             if (currentSongIndex < 0) {
+                 currentBuzzObject.stop();
+                 SongPlayer.currentSong.playing = null;
+             } else {
+                 var song = currentAlbum.songs[currentSongIndex];
+                 setSong(song);
+                 playSong(song);
+             }
+         };
          
           return SongPlayer;
      }
