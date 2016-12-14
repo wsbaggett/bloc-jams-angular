@@ -36,7 +36,7 @@
           */      
           var setSong = function(song) {
              if (currentBuzzObject) {
-                 stopSong(SongPlayer.currentSong);
+                stopSong(SongPlayer.currentSong);
              }
              currentBuzzObject = new buzz.sound(song.audioUrl, {
                  formats: ['mp3'],
@@ -46,6 +46,9 @@
             currentBuzzObject.bind('timeupdate', function() {
                 $rootScope.$apply(function() {
                      SongPlayer.currentTime = currentBuzzObject.getTime();
+                     if (SongPlayer.currentTime >= SongPlayer.currentSong.duration) {
+                         SongPlayer.next();
+                         }
                 });
             });  
  
